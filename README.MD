@@ -19,7 +19,7 @@ P.S. где с не ограничено большое значение
 
 ![img_3.png](img_3.png)
 
-### Комментарии
+### Описание работы
 
 #### Функция canReachSum()
 
@@ -61,7 +61,128 @@ const canReachSum = (a, b, c) => {
     dfsCanReachSum(a, b);
     return found;
 }
+```
 
+#### *Функция buildTree() - out of task scope
+Функция `buildTree()` строит дерево значений, показывающее все возможные комбинации чисел a и b, которые могут быть 
+получены путем их сложения до достижения или превышения значения c. Она также использует алгоритм глубинного поиска (DFS).
 
+**Входные параметры**: a, b, c
 
+**Выходное значение**: дерево значений в формате, подходящем для визуализации.
 
+**Алгоритм**:
+
+Создается множество `visited` для отслеживания уже проверенных комбинаций.
+Создается объект дерева `tree` для хранения структуры дерева.
+Рекурсивная функция `dfsBuildTree()` проверяет, была ли комбинация уже проверена или превышает ли она значение c.
+Если текущие значения `a` или `b` равны `c`, устанавливается `targetDepth`.
+Функция добавляет новые узлы в дерево и рекурсивно продолжает строить дерево для новых значений.
+Функция `pruneTree()` удаляет ненужные узлы после нахождения решения.
+
+```javascript
+const buildTree = (a, b, c) => {
+    const visited = new Set();
+    const tree = {label: `${a}, ${b}`, nodes: []};
+    let targetDepth = -1;
+
+    const dfsBuildTree = (a, b, node, depth = 0) => {
+        const key = `${a},${b}`;
+        if (visited.has(key) || a > c || b > c) {
+            return;
+        }
+
+        visited.add(key);
+
+        if ((a === c || b === c) && targetDepth === -1) {
+            targetDepth = depth;
+        }
+
+        const child1 = {label: `${a + b}, ${b}`, nodes: []};
+        const child2 = {label: `${a}, ${b + a}`, nodes: []};
+        node.nodes.push(child1, child2);
+
+        if (targetDepth === -1 || depth < targetDepth) {
+            dfsBuildTree(a + b, b, child1, depth + 1);
+            dfsBuildTree(a, b + a, child2, depth + 1);
+        }
+    }
+
+    dfsBuildTree(a, b, tree);
+
+    // Function to remove unnecessary nodes after finding a solution
+    const pruneTree = (node, depth = 0) => {
+        if (targetDepth !== -1 && depth > targetDepth) {
+            return false;
+        }
+        node.nodes = node.nodes.filter(child => pruneTree(child, depth + 1));
+        return true;
+    }
+
+    pruneTree(tree);
+    return tree;
+}
+```
+
+### Тестирование
+Для тестирования используется отдельный файл `test.js`, который проверяет корректность работы функции `canReachSum()` на 
+различных тестовых данных. 
+Тесты включают проверки как для достижимых, так и для недостижимых значений `c`. 
+Результаты тестов выводятся с использованием цветного текста для улучшения читаемости.
+
+```javascript
+import { canReachSum, isValidInput } from './app.js';
+
+// ANSI escape codes for colors
+const colors = {
+    reset: "\x1b[0m",
+    green: "\x1b[32m",
+    red: "\x1b[31m"
+};
+
+const testDataProvider = [
+    [5, 7, 12, 'YES'],
+    [5, 7, 13, 'NO'],
+    [5, 7, 21, 'NO'],
+    [5, 7, 22, 'YES'],
+    [5, 7, 1, 'Error: Please enter positive integers and ensure "c" >= "a" + "b".'],
+    [5, 7, -20, 'Error: Please enter positive integers and ensure "c" >= "a" + "b".']
+];
+
+function runTests() {
+    testDataProvider.forEach((test, index) => {
+        const [a, b, c, expected] = test;
+
+        console.log(`Running test case ${index + 1}: asserting that canReachSum(${a}, ${b}, ${c}) will return '${expected}'`);
+
+        if (!isValidInput(a, b, c)) {
+            const result = 'Error: Please enter positive integers and ensure "c" >= "a" + "b".';
+            if (result === expected) {
+                console.log(`${colors.green}✓${colors.reset} Test case ${index + 1} passed.\n`);
+            } else {
+                console.error(`${colors.red}✗${colors.reset} Test case ${index + 1} failed. Expected: ${expected}, but got: ${result}\n`);
+            }
+        } else {
+            const result = canReachSum(a, b, c) ? 'YES' : 'NO';
+            if (result === expected) {
+                console.log(`${colors.green}✓${colors.reset} Test case ${index + 1} passed.\n`);
+            } else {
+                console.error(`${colors.red}✗${colors.reset} Test case ${index + 1} failed. Expected: ${expected}, but got: ${result}\n`);
+            }
+        }
+    });
+    console.log('All tests completed.');
+    process.exit();
+}
+
+runTests();
+```
+
+### Комментарии
+Алгоритмы `canReachSum()` и `buildTree()` имеют *экспоненциальную временную* и *пространственную* **сложность** `O(2^n)`, что связано с 
+исследованием всех возможных комбинаций значений `a` и `b` до достижения или превышения значения `c`.
+Это делает алгоритмы непригодными для работы с *очень большими значениями* c из-за их высокой ресурсоемкости.
+
+*Можно еще рассмотреть реализации для алгоритма поиска в ширину (`Breadth-First Search`, `BFS`), Мемоизация (`Memoization`),
+Жадный алгоритм (`Greedy Algorithm`), Метод ветвей и границ (`Branch and Bound`) etc... и сравнить их сложность, 
+но все это достаточно времязатратно и может выходить за рамки "простой" тестовой задачи 🤔
