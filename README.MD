@@ -9,13 +9,15 @@ P.S. где с не ограничено большое значение
 ![img.png](img.png)
 
 ### Установка и запуск
-1. `nvm use v20.11.1` 
-2. `npm i`
-3. `node app.js`
+1. `git clone git@github.com:atamaniuc/hotsoftware_technical_assignment.git` или `gh repo clone atamaniuc/hotsoftware_technical_assignment`
+2. `cd technical_assignment`
+3. `nvm use v20.11.1` (такой у меня уже был установлен)
+4. `npm i`
+5. `node app.js`
 
 ![img_2.png](img_2.png)
 
-4. `node test.js`
+6. `node test.js`
 
 ![img_3.png](img_3.png)
 
