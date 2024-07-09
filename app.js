@@ -26,12 +26,11 @@ const main = () => {
                     }
 
                     console.log('\n' + archy(tree));
-
-                    rl.close();
                 } else {
                     console.error('Error: Please enter positive integers and ensure "c" >= "a" + "b".');
-                    rl.close();
                 }
+
+                rl.close();
             });
         });
     });

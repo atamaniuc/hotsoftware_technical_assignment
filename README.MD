@@ -153,21 +153,21 @@ const testDataProvider = [
     [5, 7, -20, 'Error: Please enter positive integers and ensure "c" >= "a" + "b".']
 ];
 
-function runTests() {
-    testDataProvider.forEach((test, index) => {
-        const [a, b, c, expected] = test;
+const runTests = () => {
+    testDataProvider.forEach((testCase, index) => {
+        const [a, b, c, expected] = testCase;
 
         console.log(`Running test case ${index + 1}: asserting that canReachSum(${a}, ${b}, ${c}) will return '${expected}'`);
 
-        if (!isValidInput(a, b, c)) {
-            const result = 'Error: Please enter positive integers and ensure "c" >= "a" + "b".';
+        if (isValidInput(a, b, c)) {
+            const result = canReachSum(a, b, c) ? 'YES' : 'NO';
             if (result === expected) {
                 console.log(`${colors.green}✓${colors.reset} Test case ${index + 1} passed.\n`);
             } else {
                 console.error(`${colors.red}✗${colors.reset} Test case ${index + 1} failed. Expected: ${expected}, but got: ${result}\n`);
             }
         } else {
-            const result = canReachSum(a, b, c) ? 'YES' : 'NO';
+            const result = 'Error: Please enter positive integers and ensure "c" >= "a" + "b".';
             if (result === expected) {
                 console.log(`${colors.green}✓${colors.reset} Test case ${index + 1} passed.\n`);
             } else {
@@ -176,17 +176,17 @@ function runTests() {
         }
     });
     console.log('All tests completed.');
-    process.exit();
 }
 
 runTests();
 ```
 
 ### Комментарии
-Алгоритмы `canReachSum()` и `buildTree()` имеют *экспоненциальную временную* и *пространственную* **сложность** `O(2^n)`, что связано с 
-исследованием всех возможных комбинаций значений `a` и `b` до достижения или превышения значения `c`.
+Алгоритмы `canReachSum()` и `buildTree()` имеют *экспоненциальную временную* и *пространственную* **сложность** `O(2^n)`, 
+что связано с исследованием всех возможных комбинаций значений `a` и `b` до достижения или превышения значения `c`.
 Это делает алгоритмы непригодными для работы с *очень большими значениями* c из-за их высокой ресурсоемкости.
 
 *Можно еще рассмотреть реализации для алгоритма поиска в ширину (`Breadth-First Search`, `BFS`), Мемоизация (`Memoization`),
-Жадный алгоритм (`Greedy Algorithm`), Метод ветвей и границ (`Branch and Bound`) etc... и сравнить их сложность, 
-но все это достаточно времязатратно и может выходить за рамки "простой" тестовой задачи 🤔
+Жадный алгоритм (`Greedy Algorithm`), Метод ветвей и границ (`Branch and Bound`) etc... и сделать бенчмарки - 
+сравнить их сложность, скорость выполнения на больших значениях и производительность, но все это достаточно времязатратно 
+и может выходить за рамки "простой" тестовой задачи 🤔
