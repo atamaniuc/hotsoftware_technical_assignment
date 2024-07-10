@@ -1,44 +1,56 @@
-import {canReachSum, isValidInput} from './app.js';
+import { Worker } from 'worker_threads';
+import assert from 'assert';
 
-// ANSI colors escape codes
-const colors = {
-    reset: "\x1b[0m",
-    green: "\x1b[32m",
-    red: "\x1b[31m"
-};
-const testDataProvider = [
-    [5, 7, 12, 'YES'],
-    [5, 7, 13, 'NO'],
-    [5, 7, 21, 'NO'],
-    [5, 7, 22, 'YES'],
-    [5, 7, 1, 'Error: Please enter positive integers and ensure "c" >= "a" + "b".'],
-    [5, 7, -20, 'Error: Please enter positive integers and ensure "c" >= "a" + "b".'],
+const testCases = [
+    { a: 5, b: 7, c: 12, expected: 'YES' },
+    { a: 5, b: 7, c: 13, expected: 'NO' },
+    { a: 5, b: 7, c: 21, expected: 'NO' },
+    { a: 5, b: 7, c: 22, expected: 'YES' },
+    { a: 5, b: 7, c: 1, expected: 'Error: Please enter positive integers and ensure "c" >= "a" + "b".' },
+    { a: 5, b: 7, c: -20, expected: 'Error: Please enter positive integers and ensure "c" >= "a" + "b".' }
 ];
 
-const runTests = () => {
-    testDataProvider.forEach((testCase, index) => {
-        const [a, b, c, expected] = testCase;
-
-        console.log(`Running test case ${index + 1}: asserting that canReachSum(${a}, ${b}, ${c}) will return '${expected}'`);
-
-        if (isValidInput(a, b, c)) {
-            const result = canReachSum(a, b, c) ? 'YES' : 'NO';
-            if (result === expected) {
-                console.log(`${colors.green}✓${colors.reset} Test case ${index + 1} passed.\n`);
-            } else {
-                console.error(`${colors.red}✗${colors.reset} Test case ${index + 1} failed. Expected: ${expected}, but got: ${result}\n`);
+const runTest = ({ a, b, c, expected }) => {
+    return new Promise((resolve, reject) => {
+        if (!isValidInput(a, b, c)) {
+            try {
+                assert.strictEqual('Error: Please enter positive integers and ensure "c" >= "a" + "b".', expected);
+                console.log(`Test passed for a=${a}, b=${b}, c=${c}: Expected ${expected}, got ${expected}`);
+                resolve();
+            } catch (error) {
+                console.error(`Test failed for a=${a}, b=${b}, c=${c}: Expected ${expected}, got Error`);
+                reject(error);
             }
-        } else {
-            const result = 'Error: Please enter positive integers and ensure "c" >= "a" + "b".';
-            if (result === expected) {
-                console.log(`${colors.green}✓${colors.reset} Test case ${index + 1} passed.\n`);
-            } else {
-                console.error(`${colors.red}✗${colors.reset} Test case ${index + 1} failed. Expected: ${expected}, but got: ${result}\n`);
-            }
+            return;
         }
-    });
-    console.log('All tests completed.');
-}
 
-runTests();
-process.exit();
+        const worker = new Worker('./worker.js', { workerData: { a, b, c } });
+        worker.on('message', (result) => {
+            try {
+                assert.strictEqual(result ? 'YES' : 'NO', expected);
+                console.log(`Test passed for a=${a}, b=${b}, c=${c}: Expected ${expected}, got ${result ? 'YES' : 'NO'}`);
+                resolve();
+            } catch (error) {
+                console.error(`Test failed for a=${a}, b=${b}, c=${c}: Expected ${expected}, got ${result ? 'YES' : 'NO'}`);
+                reject(error);
+            }
+        });
+        worker.on('error', (error) => {
+            console.error(`Worker error for a=${a}, b=${b}, c=${c}: ${error}`);
+            reject(error);
+        });
+    });
+};
+
+const isValidInput = (a, b, c) => {
+    return !isNaN(a) && !isNaN(b) && !isNaN(c) && a > 0 && b > 0 && c > 0 && c >= a + b;
+};
+
+const runTests = async () => {
+    for (const testCase of testCases) {
+        await runTest(testCase);
+    }
+    console.log('All tests completed.');
+};
+
+runTests().then(() => process.exit()).catch(() => process.exit(1));

@@ -1,6 +1,7 @@
 {
   "type": "module",
   "dependencies": {
-    "archy": "^1.0.0"
+    "archy": "^1.0.0",
+    "fastpriorityqueue": "^0.7.5"
   }
 }
