@@ -7,10 +7,14 @@ const colors = {
     red: "\x1b[31m"
 };
 const testDataProvider = [
+    [3, 5, 12, 'NO'],
+    [3, 5, 13, 'YES'],
     [5, 7, 12, 'YES'],
     [5, 7, 13, 'NO'],
     [5, 7, 21, 'NO'],
     [5, 7, 22, 'YES'],
+    [5, 7, 123, 'YES'],
+    [5, 7, 20000, 'YES'],
     [5, 7, 1, 'Error: Please enter positive integers and ensure "c" >= "a" + "b".'],
     [5, 7, -20, 'Error: Please enter positive integers and ensure "c" >= "a" + "b".'],
 ];
@@ -40,5 +44,8 @@ const runTests = () => {
     console.log('All tests completed.');
 }
 
+console.time('Execution Time');
 runTests();
+console.timeEnd('Execution Time');
+
 process.exit();

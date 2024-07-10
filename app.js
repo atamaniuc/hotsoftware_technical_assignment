@@ -1,4 +1,5 @@
 import * as readline from 'node:readline';
+import * as path from 'node:path';
 // import archy from 'archy';
 
 const rl = readline.createInterface({
@@ -126,8 +127,7 @@ const buildTree = (a, b, c) => {
     return tree;
 }
 
-// Run the main function if the file is launched directly
-if (process.argv[1] === new URL(import.meta.url).pathname) {
+if (path.basename(process.argv[1]) === path.basename(import.meta.url)) {
     main();
 }
 
